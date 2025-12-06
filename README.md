@@ -20,4 +20,4 @@
 
 
 ## Скачать APK
-![Последняя версия APK:](docs/app-release.apk)
+**[Последняя версия APK:](docs/app-release.apk)**
