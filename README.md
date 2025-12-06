@@ -20,4 +20,4 @@
 
 
 ## Скачать APK
-![Последняя версия APK:](/Users/sergey/Desktop/CatTinder/CatTinder/cat_tinder/build/app/outputs/flutter-apk/app-release.apk)
+![Последняя версия APK:](docs/app-release.apk)
