@@ -37,18 +37,25 @@
 
 ## Скриншоты
 - Главный экран
-![Главный экран](assets/home.png)
+
+<img src="assets/home.png" alt="Главный экран" height="500">
 - Список пород
-![Список пород](assets/breeds.png)
+  
+<img src="assets/breeds.png" alt="Список пород" width="500">
 - Детальное описание кота
-![Детальное описание кота](assets/details.png)
+
+<img src="assets/details.png" alt="Детальное описание кота" width="500">
 - Детальное описание породы
-![Детальное описание породы](assets/detailsBreed.png)
+
+<img src="assets/detailsBreed.png" alt="Детальное описание породы" width="500">
 - Вход
-![Вход](assets/login.png)
+
+<img src="assets/login.png" alt="Вход" height="500">
 - Регистрация
-![Регистрация](assets/signUp.png)
+
+<img src="assets/signUp.png" alt="Регистрация" height="500">
 - Отправленная в Firebase аналитика
+
 ![Отправленная аналитика](assets/analyze.png)
 
 
