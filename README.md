@@ -63,4 +63,4 @@
 <a href="https://github.com/merkolet/CatTinder/releases/download/1.0/app-release.apk" download>Последняя версия APK</a>
 
 ## Скачать Demo приложения
-<a href="https://github.com/merkolet/CatTinder/assets/Демка.webm" download>Демо приложения</a>
+[Запись демонстрации приложения](assets/Демка.mp4)
