@@ -54,9 +54,9 @@ class _TestAnalyticsRepository implements AnalyticsRepository {
 Future<void> _runWithStatus(Future<void> Function() body) async {
   try {
     await body();
-    print('✅ completed');
+    debugPrint('✅ completed');
   } catch (_) {
-    print('❌ Failed');
+    debugPrint('❌ Failed');
     rethrow;
   }
 }

@@ -2,6 +2,7 @@ import 'package:cat_tinder/domain/auth/auth_result.dart';
 import 'package:cat_tinder/domain/auth/sign_up_use_case.dart';
 import 'package:cat_tinder/domain/entities/app_user.dart';
 import 'package:cat_tinder/domain/repositories/auth_repository.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class _FakeAuthRepository implements AuthRepository {
@@ -38,9 +39,9 @@ class _FakeAuthRepository implements AuthRepository {
 Future<void> _runWithStatus(Future<void> Function() body) async {
   try {
     await body();
-    print('✅ completed');
+    debugPrint('✅ completed');
   } catch (_) {
-    print('❌ Failed');
+    debugPrint('❌ Failed');
     rethrow;
   }
 }
