@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../models/breed.dart';
+import '../../domain/entities/breed.dart';
 
 class BreedDetailScreen extends StatelessWidget {
   const BreedDetailScreen({required this.breed, super.key});
@@ -105,9 +105,10 @@ class _StatTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final stars = value != null
-        ? List.generate((value!.clamp(1, 5) as num).toInt(), (_) => '⭐').join()
-        : custom ?? '';
+    final stars = switch (value) {
+      final int raw => List.generate(raw.clamp(1, 5), (_) => '⭐').join(),
+      null => custom ?? '',
+    };
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -136,3 +137,4 @@ class _StatTile extends StatelessWidget {
     );
   }
 }
+

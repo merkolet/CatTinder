@@ -47,3 +47,4 @@ class Breed {
 
   String shortInfo() => '$origin · $temperament';
 }
+

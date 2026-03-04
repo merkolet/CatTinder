@@ -1,8 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
-import '../models/breed.dart';
-import '../models/cat_image.dart';
+import '../../domain/entities/breed.dart';
+import '../../domain/entities/cat_image.dart';
 
 class CatDetailScreen extends StatelessWidget {
   const CatDetailScreen({required this.cat, super.key});
@@ -145,3 +145,4 @@ class _CharacteristicRow extends StatelessWidget {
     );
   }
 }
+

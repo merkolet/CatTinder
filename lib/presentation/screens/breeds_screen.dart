@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-import '../models/breed.dart';
-import '../services/cat_api_service.dart';
+import '../../domain/entities/breed.dart';
+import '../../domain/repositories/cat_repository.dart';
 import 'breed_detail_screen.dart';
 
 class BreedsScreen extends StatefulWidget {
-  const BreedsScreen({required this.apiService, super.key});
+  const BreedsScreen({required this.catRepository, super.key});
 
-  final CatApiService apiService;
+  final CatRepository catRepository;
 
   @override
   State<BreedsScreen> createState() => _BreedsScreenState();
@@ -19,7 +19,7 @@ class _BreedsScreenState extends State<BreedsScreen> {
   @override
   void initState() {
     super.initState();
-    _futureBreeds = widget.apiService.fetchBreeds();
+    _futureBreeds = widget.catRepository.getBreeds();
   }
 
   @override
@@ -35,7 +35,7 @@ class _BreedsScreenState extends State<BreedsScreen> {
             error: snapshot.error.toString(),
             onRetry: () {
               setState(() {
-                _futureBreeds = widget.apiService.fetchBreeds();
+                _futureBreeds = widget.catRepository.getBreeds();
               });
             },
           );
@@ -160,3 +160,4 @@ class _ErrorState extends StatelessWidget {
     );
   }
 }
+

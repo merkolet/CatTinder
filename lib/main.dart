@@ -1,11 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-import 'screens/breeds_screen.dart';
-import 'screens/cat_home_screen.dart';
-import 'services/cat_api_service.dart';
+import 'di/app_dependencies.dart';
+import 'presentation/app_gate.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await Firebase.initializeApp();
+  } catch (error) {
+    runApp(StartupErrorApp(error: error.toString()));
+    return;
+  }
   runApp(const MainApp());
+}
+
+class StartupErrorApp extends StatelessWidget {
+  const StartupErrorApp({required this.error, super.key});
+
+  final String error;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        body: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Center(
+            child: Text(
+              'Не удалось инициализировать Firebase.\n$error',
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class MainApp extends StatefulWidget {
@@ -16,11 +47,17 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
-  final CatApiService _service = CatApiService();
+  late final AppDependencies _dependencies;
+
+  @override
+  void initState() {
+    super.initState();
+    _dependencies = AppDependencies.create();
+  }
 
   @override
   void dispose() {
-    _service.dispose();
+    _dependencies.dispose();
     super.dispose();
   }
 
@@ -28,7 +65,7 @@ class _MainAppState extends State<MainApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Кототиндер',
+      title: 'Кототиндер Pro😎',
       theme: ThemeData(
         colorScheme: const ColorScheme.light(
           primary: Color(0xFFF2925A),
@@ -45,29 +82,7 @@ class _MainAppState extends State<MainApp> {
         fontFamily: 'Roboto',
         useMaterial3: true,
       ),
-      home: DefaultTabController(
-        length: 2,
-        child: Scaffold(
-          appBar: AppBar(
-            title: const Text('Кототиндер'),
-            bottom: const TabBar(
-              labelColor: Color(0xFFF2925A),
-              unselectedLabelColor: Color(0xFF808080),
-              indicatorColor: Color(0xFFF2925A),
-              tabs: [
-                Tab(icon: Icon(Icons.pets), text: 'Подборка'),
-                Tab(icon: Icon(Icons.list_alt), text: 'Породы'),
-              ],
-            ),
-          ),
-          body: TabBarView(
-            children: [
-              CatHomeScreen(apiService: _service),
-              BreedsScreen(apiService: _service),
-            ],
-          ),
-        ),
-      ),
+      home: AppGate(dependencies: _dependencies),
     );
   }
 }

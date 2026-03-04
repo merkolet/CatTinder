@@ -3,11 +3,12 @@ import 'dart:math';
 
 import 'package:http/http.dart' as http;
 
-import '../models/breed.dart';
-import '../models/cat_image.dart';
+import '../../domain/entities/breed.dart';
+import '../../domain/entities/cat_image.dart';
+import '../../domain/repositories/cat_repository.dart';
 
-class CatApiService {
-  CatApiService({http.Client? client}) : _client = client ?? http.Client();
+class CatApiRepository implements CatRepository {
+  CatApiRepository({http.Client? client}) : _client = client ?? http.Client();
 
   final http.Client _client;
   final Random _random = Random();
@@ -21,7 +22,8 @@ class CatApiService {
     return {'Content-Type': 'application/json', 'x-api-key': _apiKey};
   }
 
-  Future<CatImage> fetchRandomCat() async {
+  @override
+  Future<CatImage> getRandomCat() async {
     CatImage? lastCat;
     for (var attempt = 0; attempt < 3; attempt++) {
       final cat = await _fetchRandomCat();
@@ -31,11 +33,13 @@ class CatApiService {
       }
     }
     final breedCat = await _fetchCatByRandomBreed();
-    return breedCat ?? lastCat!;
+    if (breedCat != null) return breedCat;
+    if (lastCat != null) return lastCat;
+    throw Exception('Не удалось получить котика');
   }
 
   Future<CatImage?> _fetchCatByRandomBreed() async {
-    final breeds = await fetchBreeds();
+    final breeds = await getBreeds();
     if (breeds.isEmpty) return null;
     final breed = breeds[_random.nextInt(breeds.length)];
     final uri = Uri.parse(
@@ -62,9 +66,11 @@ class CatApiService {
     return CatImage.fromJson(body.first as Map<String, dynamic>);
   }
 
-  Future<List<Breed>> fetchBreeds({bool forceRefresh = false}) async {
-    if (!forceRefresh && _cachedBreeds != null) {
-      return _cachedBreeds!;
+  @override
+  Future<List<Breed>> getBreeds({bool forceRefresh = false}) async {
+    final cachedBreeds = _cachedBreeds;
+    if (!forceRefresh && cachedBreeds != null) {
+      return cachedBreeds;
     }
     final uri = Uri.parse('$_baseUrl/breeds');
     final response = await _client.get(uri, headers: _headers);
@@ -85,7 +91,9 @@ class CatApiService {
     }
   }
 
+  @override
   void dispose() {
     _client.close();
   }
 }
+

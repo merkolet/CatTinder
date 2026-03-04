@@ -1,14 +1,20 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
-import '../models/cat_image.dart';
-import '../services/cat_api_service.dart';
+import '../../domain/entities/cat_image.dart';
+import '../../domain/repositories/cat_repository.dart';
+import '../../domain/repositories/likes_repository.dart';
 import 'cat_detail_screen.dart';
 
 class CatHomeScreen extends StatefulWidget {
-  const CatHomeScreen({required this.apiService, super.key});
+  const CatHomeScreen({
+    required this.catRepository,
+    required this.likesRepository,
+    super.key,
+  });
 
-  final CatApiService apiService;
+  final CatRepository catRepository;
+  final LikesRepository likesRepository;
 
   @override
   State<CatHomeScreen> createState() => _CatHomeScreenState();
@@ -24,7 +30,20 @@ class _CatHomeScreenState extends State<CatHomeScreen>
   @override
   void initState() {
     super.initState();
+    _loadLikes();
     _loadCat();
+  }
+
+  Future<void> _loadLikes() async {
+    try {
+      final likes = await widget.likesRepository.getLikesCount();
+      if (!mounted) return;
+      setState(() {
+        _likes = likes;
+      });
+    } catch (_) {
+      // Если локальное хранилище недоступно, оставляем 0.
+    }
   }
 
   Future<void> _loadCat() async {
@@ -33,12 +52,13 @@ class _CatHomeScreenState extends State<CatHomeScreen>
       _hasError = false;
     });
     try {
-      final cat = await widget.apiService.fetchRandomCat();
+      final cat = await widget.catRepository.getRandomCat();
       if (!mounted) return;
       setState(() {
         _currentCat = cat;
       });
     } catch (e) {
+      if (!mounted) return;
       _showErrorDialog(e.toString());
       setState(() {
         _hasError = true;
@@ -52,15 +72,23 @@ class _CatHomeScreenState extends State<CatHomeScreen>
     }
   }
 
-  void _handleAction(bool liked) {
+  Future<void> _handleAction(bool liked) async {
+    var updatedLikes = _likes;
     setState(() {
       if (liked) {
-        _likes++;
+        updatedLikes++;
+        _likes = updatedLikes;
       }
-      // Убираем текущую карточку из дерева, чтобы Dismissible не остался.
       _currentCat = null;
     });
-    _loadCat();
+    if (liked) {
+      try {
+        await widget.likesRepository.saveLikesCount(updatedLikes);
+      } catch (_) {
+        // Ошибка записи не должна ломать UX свайпов.
+      }
+    }
+    await _loadCat();
   }
 
   void _showErrorDialog(String message) {
@@ -103,8 +131,12 @@ class _CatHomeScreenState extends State<CatHomeScreen>
               Expanded(child: Center(child: _buildCatCard(cat))),
               const SizedBox(height: 16),
               _ActionButtons(
-                onDislike: () => _handleAction(false),
-                onLike: () => _handleAction(true),
+                onDislike: () {
+                  _handleAction(false);
+                },
+                onLike: () {
+                  _handleAction(true);
+                },
                 enabled: !_loading && !_hasError,
               ),
               const SizedBox(height: 8),
@@ -145,6 +177,7 @@ class _CatHomeScreenState extends State<CatHomeScreen>
           ).push(MaterialPageRoute(builder: (_) => CatDetailScreen(cat: cat)));
         },
         child: Container(
+          constraints: const BoxConstraints(maxWidth: 460),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
@@ -158,11 +191,13 @@ class _CatHomeScreenState extends State<CatHomeScreen>
           ),
           clipBehavior: Clip.antiAlias,
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Expanded(
+              AspectRatio(
+                aspectRatio: 1.1,
                 child: CachedNetworkImage(
                   imageUrl: cat.url,
-                  fit: BoxFit.contain,
+                  fit: BoxFit.cover,
                   width: double.infinity,
                   placeholder: (context, _) =>
                       const Center(child: CircularProgressIndicator()),
@@ -184,6 +219,8 @@ class _CatHomeScreenState extends State<CatHomeScreen>
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 6),
                     Text(
@@ -192,6 +229,8 @@ class _CatHomeScreenState extends State<CatHomeScreen>
                         fontSize: 14,
                         color: Colors.grey.shade700,
                       ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 6),
                   ],
@@ -297,3 +336,4 @@ class _LikesBadge extends StatelessWidget {
     );
   }
 }
+
